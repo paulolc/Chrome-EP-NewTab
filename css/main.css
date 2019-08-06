@@ -3,6 +3,17 @@ html {
     color: white;
 }
 
+a {
+    color: white;
+    text-decoration: none;
+}
+
+a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+
 .image-text {
     text-shadow:
     -1px -1px 0 #000,  

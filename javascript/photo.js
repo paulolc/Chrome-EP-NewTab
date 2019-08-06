@@ -73,7 +73,10 @@ backgrounds.Photo = new Model({
         return url.replace(/&amp;/g, '&');
     },
 
-    displayTitleAuthor: function(title, author) {
+    displayImageTitleAuthor: function(image) {
+        var title=image.title.trim();
+        var author=image.author.trim();
+        var permalink=image.permalink;
         // Regex matching
         // TODO: Rename myRe and myArray to something more meaningful
         var myRe = /(?:\[|\()\s*oc\s*(?:\]|\))/gi;
@@ -86,15 +89,26 @@ backgrounds.Photo = new Model({
         if (myArray != null) {
             title = title.slice(0, myArray.index).trim() + ' ' + title.slice(myRe.lastIndex).trim();
         }
+
+        var titleLink = document.createElement('a'); 
+        titleLink.setAttribute('href','http://www.reddit.com/' + permalink); 
+        titleLink.innerText = title; 
+
         var div = document.createElement('div');
         var titleSpan = document.createElement('span');
-        var titleText = document.createTextNode(title.trim());
         titleSpan.className = 'title image-text';
-        titleSpan.appendChild(titleText);
+        titleSpan.appendChild(titleLink);
+ 
+        var authorLink = document.createElement('a'); 
+        authorLink.setAttribute('href','http://www.reddit.com/user/' + author); 
+        authorLink.innerText = author; 
         var authorSpan = document.createElement('span');
-        var authorText = document.createTextNode('posted by ' + author.trim());
+        var authorText = document.createTextNode('posted by ');
+
         authorSpan.className = 'author image-text';
         authorSpan.appendChild(authorText);
+        authorSpan.appendChild(authorLink);
+
         div.appendChild(titleSpan);
         div.appendChild(authorSpan);
         document.body.appendChild(div);
@@ -104,14 +118,16 @@ backgrounds.Photo = new Model({
         var url = image.url;
         document.body.style.background = "url(" + url + ") no-repeat center center fixed";
         document.body.style.backgroundSize = "cover";
-        this.displayTitleAuthor(image.title, image.author);
+        this.displayImageTitleAuthor(image);
     },
 
     parseImage: function(response, imageNumber) {
         var imageData = {};
-        imageData.title = response.data.children[imageNumber % (response.data.children.length)].data.title;
-        imageData.author = response.data.children[imageNumber % (response.data.children.length)].data.author;
-        imageData.url = this.unescapeUrl(response.data.children[imageNumber % (response.data.children.length)].data.preview.images[0].source.url);
+        var sourceData = response.data.children[imageNumber % (response.data.children.length)].data;
+        imageData.title = sourceData.title;
+        imageData.author = sourceData.author;
+        imageData.permalink = sourceData.permalink;
+        imageData.url = this.unescapeUrl(sourceData.preview.images[0].source.url);
         return imageData;
     },
 
